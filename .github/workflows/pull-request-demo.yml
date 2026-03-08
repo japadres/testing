@@ -42,4 +42,6 @@ jobs:
     - name: "Ruff Formatting"
       run: ruff format --diff --target-version=py313
       continue-on-error: true
+    - name: "Run Tests"
+      run: pytest --cov= ${{steps.collect_tests.outputs.files}} --cov-report=xml --junitxml=test-results.xml
     
