@@ -42,7 +42,7 @@ def load_files() -> list[str]:
     - PULL_REQUEST_ID: the pull request number being inspected
 
     """
-    gh_actions_token = os.environ.get("ACTIONS_TOKEN")
+    gh_actions_token = os.environ.get("GITHUB_TOKEN")
     if not gh_actions_token:
         raise ValueError(
             "Could not get github actions token for API, please validate that it is set properly."
@@ -64,10 +64,25 @@ def load_files() -> list[str]:
     files_list = []
     for entry in response.json():
         # each entry is a dict with a 'filename' key among others
+        logger.info(f"Found changed file: {entry.get('filename')}")
         files_list.append(entry.get("filename"))
 
     return files_list
 
 
 if __name__ == "__main__":
-    load_files()
+    files = load_files()
+    # always print for visibility in action logs
+    print("Changed files:")
+    for f in files:
+        print(f)
+
+    # if running under GitHub Actions we can also set an output variable
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        # the workflow can reference this via steps.<id>.outputs.files
+        with open(github_output, "a") as fh:
+            # use the multiline syntax so commas or newlines don't break it
+            fh.write("files<<EOF\n")
+            fh.write("\n".join(files))
+            fh.write("\nEOF\n")
