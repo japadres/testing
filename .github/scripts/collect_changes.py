@@ -1,4 +1,3 @@
-from PIL.ImageFont import load
 import requests
 import os
 from urllib.parse import quote
