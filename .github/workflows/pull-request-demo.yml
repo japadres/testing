@@ -11,34 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v4
     - name: Set up Python Latest
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: "3.x"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: "Collect Changes"
-      id: collect_changes
+    - name: "Collect Tests"
+      id: collect_tests
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_OWNER: ${{ github.repository_owner }}
         PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
         GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+        WATCH_FILES: ".py,.json"
       working-directory: ./.github/scripts
-      run: python ./collect_changes.py 
+      run: python ./collect_tests.py 
     - name: Show captured files
       run: |
           echo "Files returned by script:"
-          echo "${{ steps.collect_changes.outputs.files }}"  
+          echo "${{ steps.collect_tests.outputs.files }}"  
     - name: "Setup Ruff"
       run: pipx install ruff
     - name: "Ruff Linting"
       run: ruff check --output-format=github --target-version=py313
     - name: "Ruff Formatting"
-      run: ruff formatr --diff --target-version=py313
+      run: ruff format --diff --target-version=py313
       continue-on-error: true
     
