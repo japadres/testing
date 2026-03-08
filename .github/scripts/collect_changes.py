@@ -1,6 +1,10 @@
+from PIL.ImageFont import load
 import requests
 import os
 from urllib.parse import quote
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def sanitize_list_pull_request_files(
@@ -67,4 +71,4 @@ def load_files() -> list[str]:
 
 
 if __name__ == "__main__":
-    ...
+    load_files()

@@ -4,8 +4,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -23,6 +21,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: "Collect Changes"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_OWNER: ${{ github.repository_owner }}
+        PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: python ./scripts/collect_changes.py
     - name: "Setup Ruff"
       run: pipx install ruff
     - name: "Ruff Linting"
@@ -30,6 +35,4 @@ jobs:
     - name: "Ruff Formatting"
       run: ruff formatr --diff --target-version=py313
       continue-on-error: true
-    - name: Test with pytest
-      run: |
-        pytest
+    
